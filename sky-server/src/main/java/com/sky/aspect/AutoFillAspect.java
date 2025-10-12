@@ -40,7 +40,14 @@ public class AutoFillAspect {
         //获取到当前被拦截的方法上的数据库操作类型
         MethodSignature signature = (MethodSignature) joinPoint.getSignature(); //方法签名对象
         AutoFill autoFill = signature.getMethod().getAnnotation(AutoFill.class);//获得方法上的注解对象
+
+
+        if (autoFill == null) {
+            return; // 不是需要自动填充的方法，不处理
+        }
         OperationType operationType = autoFill.value();//获得数据库操作类型
+
+
 
         //获取到当前被拦截的方法的参数--实体对象
         Object[] args = joinPoint.getArgs();
