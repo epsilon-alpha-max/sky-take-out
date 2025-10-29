@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.management.relation.RelationSupport;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -169,4 +170,108 @@ public class DishServiceImpl implements DishService {
             dishFlavorMapper.insertBatch(flavors);
         }
     }
+    /**
+     * 条件查询菜品和口味
+     * @param dish
+     * @return
+     */
+    public List<DishVO> listWithFlavor(Dish dish) {
+        List<Dish> dishList = dishMapper.list(dish);
+
+        List<DishVO> dishVOList = new ArrayList<>();
+
+        for (Dish d : dishList) {
+            DishVO dishVO = new DishVO();
+            BeanUtils.copyProperties(d,dishVO);
+
+            //根据菜品id查询对应的口味
+            List<DishFlavor> flavors = dishFlavorMapper.getByDishId(d.getId());
+
+            dishVO.setFlavors(flavors);
+            dishVOList.add(dishVO);
+        }
+
+        return dishVOList;
+    }
+    /**
+     * 根据分类id查询菜品
+     * @param categoryId
+     * @return
+     */
+    public List<Dish> list(Long categoryId) {
+        Dish dish = Dish.builder()
+                .categoryId(categoryId)
+                .status(StatusConstant.ENABLE)
+                .build();
+        return dishMapper.list(dish);
+    }
+    /**
+     * 修改菜品
+     *
+     * @param dishDTO
+     */
+    @Transactional
+    public void updateDish(DishDTO dishDTO) {
+        Dish dish = new Dish();
+        BeanUtils.copyProperties(dishDTO, dish);
+        List<DishFlavor> flavors = dishDTO.getFlavors();
+        flavors.forEach(dishFlavor -> {
+            dishFlavor.setDishId(dish.getId());
+        });
+
+        //更新菜品
+        dishMapper.updateDish(dish);
+        //更新菜品对应的口味
+        dishMapper.deleteBatchFlavors(flavors);
+        dishMapper.insertBatchFlavors(flavors);
+
+    }
+
+    /**
+     * 根据id获取菜品数据
+     *
+     * @param id
+     */
+    public DishVO getById(Long id) {
+        ArrayList<Long> ids = new ArrayList<>();
+        ids.add(id);
+        //根据id获取菜品
+        Dish dish = dishMapper.getByIdBatch(ids).get(0);
+
+        //根据菜品id获取该菜品的口味
+        ArrayList<DishFlavor> dishFlavors = dishMapper.getFlavorById(id);
+
+        DishVO dishVO = new DishVO();
+        BeanUtils.copyProperties(dish, dishVO);
+        dishVO.setFlavors(dishFlavors);
+        return dishVO;
+
+    }
+
+    /**
+     * 根据分类id获取菜品
+     *
+     * @param categoryId
+     * @return
+     */
+    public ArrayList<Dish> getByCategoryId(Long categoryId) {
+        return dishMapper.getByCategoryId(categoryId, null);
+    }
+
+    /**
+     * 起售或停售菜品
+     *
+     * @param id
+     * @param status
+     */
+    public void startOrStop(Long id, Integer status) {
+        Dish dish = new Dish();
+        dish.setStatus(status);
+        dish.setId(id);
+
+        dishMapper.updateDish(dish);
+    }
+
+
+
 }

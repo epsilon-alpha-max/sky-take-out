@@ -4,12 +4,17 @@ import com.github.pagehelper.Page;
 import com.sky.annotation.AutoFill;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
+import com.sky.entity.DishFlavor;
 import com.sky.enumeration.OperationType;
 import com.sky.vo.DishVO;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface DishMapper {
@@ -63,4 +68,67 @@ public interface DishMapper {
      */
     @AutoFill(value = OperationType.UPDATE)
     void update(Dish dish);
+
+    /**
+     * 动态条件查询菜品
+     *
+     * @param dish
+     * @return
+     */
+    List<Dish> list(Dish dish);
+
+    /**
+     * 根据套餐id查询菜品
+     *
+     * @param setmealId
+     * @return
+     */
+    @Select("select a.* from dish a left join setmeal_dish b on a.id = b.dish_id where b.setmeal_id = #{setmealId}")
+    List<Dish> getBySetmealId(Long setmealId);
+    /**
+     * 修改菜品
+     * @param dish
+     */
+    @AutoFill(OperationType.UPDATE)
+    void updateDish(Dish dish);
+
+    /**
+     * 批量删除口味
+     * @param flavors
+     */
+    void deleteBatchFlavors(List<DishFlavor> flavors);
+
+    /**
+     * 根据菜品id获取菜品口味
+     * @param id
+     * @return
+     */
+    ArrayList<DishFlavor> getFlavorById(Long id);
+
+    /**
+     * 根据分类id获取菜品
+     * @param categoryId
+     * @return
+     */
+
+    ArrayList<Dish> getByCategoryId(Long categoryId, Integer status);
+
+
+    /**
+     * 根据条件统计菜品数量
+     * @param map
+     * @return
+     */
+    Integer countByMap(Map map);
+    /**
+     * 根据ids批量获取菜品
+     * @param ids
+     * @return
+     */
+    ArrayList<Dish> getByIdBatch(ArrayList<Long> ids);
+    /**
+     * 批量插入口味数据
+     * @param flavors
+     */
+    void insertBatchFlavors(List<DishFlavor> flavors);
 }
