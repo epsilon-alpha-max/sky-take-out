@@ -7,6 +7,7 @@ import com.sky.result.PageResult;
 import com.sky.vo.DishItemVO;
 import com.sky.vo.SetmealVO;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public interface SetmealService {
@@ -71,5 +72,34 @@ public interface SetmealService {
      * @return
      */
     List<DishItemVO> getDishItemById(Long id);
+
+    /**
+     * 修改套餐信息
+     *
+     * @param setmealDTO
+     */
+    void updateSetmeal(SetmealDTO setmealDTO);
+
+    /**
+     * 根据套餐id获取套餐
+     *
+     * @param id
+     * @return
+     */
+    SetmealVO getDishById(Long id);
+
+    /**
+     * 根据套餐id批量删除套餐
+     *
+     * @param ids
+     */
+    void batchDeleteById(ArrayList<Long> ids);
+
+    /**
+     * 新增套餐
+     *
+     * @param setmealDTO
+     */
+    void insert(SetmealDTO setmealDTO);
 
 }
