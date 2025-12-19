@@ -77,7 +77,7 @@ public class OrderServiceImpl implements OrderService {
 
         ArrayList<OrderDetail> orderDetails = new ArrayList<>();
         //向订单明细表插入n条数据
-        for (ShoppingCart cart : list) {
+        for (ShoppingCart cart : shoppingCartList) {
             OrderDetail orderDetail = new OrderDetail();
             BeanUtils.copyProperties(cart, orderDetail);
             orderDetail.setOrderId(orders.getId());
@@ -151,7 +151,7 @@ public class OrderServiceImpl implements OrderService {
         msg.put("content", "订单号:" + outTradeNo);
 
         String toJSON = JSON.toJSONString(msg);
-        webSocketServer.sendToAllClient(toJSON);
+//        webSocketServer.sendToAllClient(toJSON);
 
     }
 
