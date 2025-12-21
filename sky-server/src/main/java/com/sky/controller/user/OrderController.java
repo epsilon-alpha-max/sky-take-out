@@ -33,6 +33,7 @@ public class OrderController {
         OrderSubmitVO orderSubmitVO = orderService.submitOrder(ordersSubmitDTO);
         return Result.success(orderSubmitVO);
     }
+
     /**
      * 订单支付
      *
@@ -46,6 +47,19 @@ public class OrderController {
 //        OrderPaymentVO orderPaymentVO = orderService.payment(ordersPaymentDTO);
 //        log.info("生成预支付交易单：{}", orderPaymentVO);
         orderService.paySuccess(ordersPaymentDTO.getOrderNumber());
+        return Result.success();
+    }
+
+    /**
+     * 客户催单
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/reminder/{id}")
+    @ApiOperation("客户催单")
+    public Result reminder(@PathVariable("id") Long id) {
+        orderService.reminder(id);
         return Result.success();
     }
 
