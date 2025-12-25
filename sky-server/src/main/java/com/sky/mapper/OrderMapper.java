@@ -3,6 +3,7 @@ package com.sky.mapper;
 import com.sky.dto.GoodsSalesDTO;
 import com.sky.entity.Orders;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.time.LocalDate;
@@ -60,7 +61,7 @@ public interface OrderMapper {
      * @param map
      * @return
      */
-    Double sumByMap(HashMap map);
+    Double sumByMap(@Param("map")Map map);
 
     /**
      * 根据动态条件统计订单数量
