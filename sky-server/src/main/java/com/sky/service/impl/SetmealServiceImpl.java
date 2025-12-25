@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -194,5 +195,79 @@ public class SetmealServiceImpl implements SetmealService {
     public List<DishItemVO> getDishItemById(Long id) {
         return setmealMapper.getDishItemBySetmealId(id);
     }
+    /**
+     * 修改套餐信息
+     * @param setmealDTO
+     */
+    @Transactional
+    public void updateSetmeal(SetmealDTO setmealDTO) {
+        Setmeal setmeal = new Setmeal();
+        BeanUtils.copyProperties(setmealDTO,setmeal);
+        //修改套餐信息
+        setmealMapper.updateSetmeal(setmeal);
+        //修改套餐的菜品信息
+        //通过套餐id删除绑定在套餐上的菜品
+        setmealMapper.deleteSetmealDish(setmealDTO.getId());
+        //批量插入套餐绑定的菜品
+        List<SetmealDish> dishes = setmealDTO.getSetmealDishes();
+        dishes.forEach(setmealDish -> setmealDish.setSetmealId(setmealDTO.getId()));
+        setmealMapper.insertBatchSetmealDish(dishes);
+    }
 
+    /**
+     * 根据套餐id获取套餐
+     *
+     * @param id
+     * @return
+     */
+    public SetmealVO getDishById(Long id) {
+        //获取套餐信息
+        Setmeal setmeal = setmealMapper.getBySetmealId(id);
+        //获取套餐绑定的菜品
+        List<SetmealDish> setmealDishes = setmealMapper.getSetmealDishById(id);
+
+        //构建返回对象
+        SetmealVO setmealVO = new SetmealVO();
+        BeanUtils.copyProperties(setmeal,setmealVO);
+        setmealVO.setSetmealDishes(setmealDishes);
+
+        return setmealVO;
+    }
+
+    /**
+     * 根据套餐id批量删除套餐
+     * @param ids
+     */
+    public void batchDeleteById(ArrayList<Long> ids) {
+        ids.forEach(id -> {
+            Setmeal setmeal = setmealMapper.getBySetmealId(id);
+            if (StatusConstant.ENABLE == setmeal.getStatus()) {
+                //起售中的套餐不能删除
+                throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ON_SALE);
+            }
+        });
+
+        ids.forEach(setmealId -> {
+            //删除套餐表中的数据
+            ArrayList<Long> setmealIds = new ArrayList<>();
+            setmealIds.add(setmealId);
+            setmealMapper.batchDeleteSetmeal(setmealIds);
+            //删除套餐菜品关系表中的数据
+            setmealMapper.deleteSetmealDish(setmealId);
+        });
+
+    }
+
+    /**
+     * 新增套餐
+     * @param setmealDTO
+     */
+    public void insert(SetmealDTO setmealDTO) {
+        Setmeal setmeal = new Setmeal();
+        BeanUtils.copyProperties(setmealDTO,setmeal);
+        //新增套餐绑定的菜品
+        setmealMapper.insertBatchSetmealDish(setmealDTO.getSetmealDishes());
+        //插入套餐信息
+        setmealMapper.insertSetmeal(setmeal);
+    }
 }

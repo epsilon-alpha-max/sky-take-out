@@ -131,4 +131,5 @@ public interface DishMapper {
      * @param flavors
      */
     void insertBatchFlavors(List<DishFlavor> flavors);
+
 }
